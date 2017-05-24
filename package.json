@@ -1,0 +1,31 @@
+{
+  "name": "workspace",
+  "bin": {
+    "stocks": "./bin/stocks.js"
+  },
+  "version": "1.0.0",
+  "description": "View stock information right in your terminal.",
+  "main": "index.js",
+  "scripts": {
+    "test": "Mocha",
+    "start": "node ./index.js",
+    "lint": "eslint ."
+  },
+  "keywords": [
+    "terminal",
+    "stocks"
+  ],
+  "author": {
+    "name": "Victorio Berra",
+    "email": "toryberra@gmail.com",
+    "url": "https://tberra.com/"
+  },
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "^3.19.0",
+    "mocha": "^3.4.1"
+  },
+  "dependencies": {
+    "nconf": "^0.8.4"
+  }
+}
