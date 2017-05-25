@@ -8,8 +8,10 @@
   "main": "index.js",
   "scripts": {
     "test": "Mocha",
-    "start": "node ./index.js",
-    "lint": "eslint ."
+    "predev": "eslint .",
+    "dev": "npm start",
+    "start": "node index.js",
+    "nodemon": "nodemon --exec npm run dev"
   },
   "keywords": [
     "terminal",
@@ -26,6 +28,11 @@
     "mocha": "^3.4.1"
   },
   "dependencies": {
-    "nconf": "^0.8.4"
+    "appdirectory": "^0.1.0",
+    "blessed": "^0.1.81",
+    "bluebird": "^3.5.0",
+    "nconf": "^0.8.4",
+    "nodemon": "^1.11.0",
+    "yahoo-finance": "git@github.com:gadicc/node-yahoo-finance.git#cookie"
   }
 }
