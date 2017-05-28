@@ -11,7 +11,7 @@
     "predev": "eslint .",
     "dev": "npm start",
     "start": "node index.js",
-    "nodemon": "nodemon --exec npm run dev"
+    "nodemon": "nodemon --config ./nodemon.json --exec npm run dev"
   },
   "keywords": [
     "terminal",
@@ -31,6 +31,7 @@
     "appdirectory": "^0.1.0",
     "blessed": "^0.1.81",
     "bluebird": "^3.5.0",
+    "moment": "^2.18.1",
     "nconf": "^0.8.4",
     "nodemon": "^1.11.0",
     "yahoo-finance": "git@github.com:gadicc/node-yahoo-finance.git#cookie"

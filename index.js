@@ -3,6 +3,8 @@ var path = require('path');
 var AppDirectory = require('appdirectory');
 var dirs = new AppDirectory('terminalstocks');
 var blessed = require('blessed');
+var moment = require('moment');
+var yahooFinance = require('yahoo-finance');
 
 nconf.argv()
     .env()
@@ -31,7 +33,8 @@ blessed.listbar({
     commands: {
         //'{bold}Terminal Stocks{/bold}': () => {},
         'Add': () => {
-            process.exit(0);
+
+
         },
         'Settings': () => {
             process.exit(0);
@@ -52,12 +55,37 @@ blessed.listbar({
         }
     }
 });
-
+var clock = blessed.text({
+    parent: screen,
+    right: 0,
+    content: 'terminal stocks!'
+});
 
 // Quit on Escape, q, or Control-C.
 screen.key(['escape', 'q', 'C-c'], function() {
     return process.exit(0);
 });
 
+blessed.listtable({
+    tags: true,
+    parent: screen,
+    height: '100%',
+    width: '100%',
+    top: 4
+});
+
+// This replaces the deprecated snapshot() API
+yahooFinance.quote({
+    symbol: 'AAPL',
+    modules: ['price', 'summaryDetail'] // see the docs for the full list
+}, function(err, quotes) {
+    console.log(quotes, err);
+});
+
 // Render the screen.
 screen.render();
+
+setInterval(() => {
+    clock.setContent(moment().format('MMMM Do YYYY, h:mm:ss a'));
+    screen.render();
+}, 1000);
