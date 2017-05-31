@@ -1,25 +1,39 @@
-var nconf = require('nconf');
-var path = require('path');
-var AppDirectory = require('appdirectory');
-var dirs = new AppDirectory('terminalstocks');
-var blessed = require('blessed');
-var moment = require('moment');
-var yahooFinance = require('yahoo-finance');
+const nconf = require('nconf');
+const path = require('path');
+const AppDirectory = require('appdirectory');
+const dirs = new AppDirectory('terminalstocks');
+const blessed = require('blessed');
+const moment = require('moment');
+const yahooFinance = require('yahoo-finance');
+const Promise = require('bluebird');
+
+const userConfigFilePath = path.join(dirs.userConfig(), 'config.json');
 
 nconf.argv()
     .env()
     .file({
-        file: path.join(dirs.userConfig(), 'config.json')
+        file: userConfigFilePath
     });
 
 nconf.defaults({
-    'stocks': [
-        'AAPL'
+    'symbols': [
+        'AAPL',
+        'T'
+    ],
+    'columns': [
+        'currentPrice'
     ]
 });
 
+if (nconf.get('config')) {
+    nconf.file('user-config', userConfigFilePath);
+}
+
+var symbols = nconf.get('symbols');
+var columns = nconf.get('columns');
+
 // Create a screen object.
-var screen = blessed.screen({
+const screen = blessed.screen({
     smartCSR: true
 });
 
@@ -56,6 +70,7 @@ blessed.listbar({
     }
 });
 var clock = blessed.text({
+    tags: true,
     parent: screen,
     right: 0,
     content: 'terminal stocks!'
@@ -66,26 +81,59 @@ screen.key(['escape', 'q', 'C-c'], function() {
     return process.exit(0);
 });
 
-blessed.listtable({
-    tags: true,
+var tickerListTable = blessed.listtable({
+    border: 'line',
     parent: screen,
     height: '100%',
     width: '100%',
-    top: 4
+    top: 1,
+    mouse: true,
+    keys: true,
+    content: 'Fetching stocks...',
+    header: {
+        bold: true
+    },
+    style: {
+        cell: {
+            selected: {
+                bg: 'blue'
+            }
+        }
+    }
+
 });
 
-// This replaces the deprecated snapshot() API
-yahooFinance.quote({
-    symbol: 'AAPL',
-    modules: ['price', 'summaryDetail'] // see the docs for the full list
-}, function(err, quotes) {
-    console.log(quotes, err);
+
+var rows = [
+    [
+        'symbol',
+        ...columns
+    ]
+];
+var quotePromises = [];
+symbols.forEach((ticker) => {
+    quotePromises.push(yahooFinance.quote({
+        symbol: ticker,
+        modules: ['financialData']
+    }).then((quote) => {
+        let financialData = quote.financialData;
+        let newRow = [ticker];
+        columns.forEach((column) => {
+            newRow.push(financialData[column].toString());
+        });
+        rows.push(newRow);
+    }));
 });
 
-// Render the screen.
+Promise.all(quotePromises).then(() => {
+    clock.setContent('Updated: ' + moment().format('h:mm:ss a'));
+    tickerListTable.setData(rows);
+    screen.render();
+    tickerListTable.focus();
+});
+
 screen.render();
 
 setInterval(() => {
-    clock.setContent(moment().format('MMMM Do YYYY, h:mm:ss a'));
-    screen.render();
+
 }, 1000);

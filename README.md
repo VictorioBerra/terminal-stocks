@@ -11,3 +11,4 @@ View stock information right in your terminal.
 TODO:
 - Translations
 - Graphs
+- Allow specify config location
